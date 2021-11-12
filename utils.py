@@ -1,3 +1,6 @@
+import torch
+import torch.nn.functional as F 
+
 def accuracy(y_pred,y_true):
     y_pred = F.softmax(y_pred,dim = 1)
     top_p,top_class = y_pred.topk(1,dim = 1)
