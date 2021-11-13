@@ -141,16 +141,16 @@ def main():
 
     tts = load_tts()
 
-    col1, col2 = st.columns([5, 7])
+    col1, col2 = st.columns([5, 3])
     with col2:
-        st.markdown('<div class="mt"></div>', unsafe_allow_html=True)
-        st.markdown('<br><br><br>', unsafe_allow_html=True)
+        # st.markdown('<div class="mt"></div>', unsafe_allow_html=True)
+        st.markdown('<br><br>', unsafe_allow_html=True)
         image_shower = st.empty()
-        speech_text = st.empty()
+        # speech_text = st.empty()
 
     with col1:
         st.markdown(meta.INFO, unsafe_allow_html=True)
-        image_file = st.file_uploader("Upload an Audio File",type=['png'])
+        image_file = st.file_uploader("Upload an Image File",type=['png'])
         # duration = st.slider('Choose your recording duration (seconds)', 5, 20, 5)
         # recorder_btn = st.button("Recording")
 
@@ -203,8 +203,8 @@ def main():
         st.success("Saved File")
 
         # print(type(audio_file))
-        image_shower.image(image_file.name)
-        speech_text.info(f"Recognizing Diseases ...")
+        image_shower.image(image_file.name, width=200)
+        # speech_text.info(f"Recognizing Diseases ...")
         result = tts.predict(image_file.name)
 
         # info.info(f"Recognizing emotion ...")
@@ -214,7 +214,7 @@ def main():
             os.remove(image_file.name)
 
             info.empty()
-        speech_text.empty()
+        # speech_text.empty()
 
 
 if __name__ == '__main__':

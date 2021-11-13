@@ -39,10 +39,10 @@ def plot_result(result):
         x=scores,
         y=labels,
         orientation='h',
-        labels={'x': 'Rating', 'y': 'Label'},
+        labels={'x': 'Probability (in %)', 'y': 'Disease'},
         text=scores,
         range_x=(0, 115),
-        title=f'Scoring the Disease Outputs',
+        title=f'Probability (in %) of the Disease',
         color=np.linspace(0, 1, len(scores)),
         color_continuous_scale='Viridis'
     )
