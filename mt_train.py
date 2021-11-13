@@ -158,14 +158,14 @@ if __name__ == "__main__":
     mapper = loader.idx_to_label_uppercased
     strs = ["imageID,disease"]
     preds = []
-    for images, _, paths, task_pad in tqdm(testloader): 
+    for images, _, paths, _ in tqdm(testloader):
         images = images.to(DEVICE)
 
         logits = model(images)
         for p, l in zip(paths, logits.cpu().tolist()):
             found_diseases = [mapper[i] for i, x in enumerate(l) if round(x) == 1]
             if len(found_diseases) == 0:
-                found_diseases = "No Finding"
+                found_diseases = ["No Finding"]
             strs.append(p.split('/')[-1] + "," + '|'.join(found_diseases))
 
     open(savefolder + "/sample_submission.csv", 'w+').write("\n".join(strs).strip())
