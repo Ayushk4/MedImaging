@@ -45,9 +45,10 @@ def get_label(path, old_dataset_file=False):
     return data
 
 class ImageDataset(data.Dataset):
-    def __init__(self, data, isTrain):
+    def __init__(self, data, isTrain, isTest=False):
         self.data = data
         self.isTrain = isTrain
+        self.isTest = isTest
         self.loader = folder.default_loader
 
         if self.isTrain:
@@ -70,11 +71,12 @@ class ImageDataset(data.Dataset):
     def __getitem__(self, idx):
         path, (label, from_old_dataset) = self.data[idx]
         indexed_label = torch.zeros(14)
-        if 'nofinding' in label:
-            assert label == ["nofinding"], label
-        else:
-            for l in label:
-                indexed_label[label_to_idx[l]] = 1
+        if not self.isTest:
+            if 'nofinding' in label:
+                assert label == ["nofinding"], label
+            else:
+                for l in label:
+                    indexed_label[label_to_idx[l]] = 1
 
         if from_old_dataset:
             task_padding = torch.zeros(14)
@@ -88,10 +90,10 @@ class ImageDataset(data.Dataset):
         return sample, indexed_label, path, task_padding
     
 def pad_fn(batch):
-    images = torch.tensor([batch[i][0] for i in range(len(batch))])
-    labels = torch.LongTensor([batch[i][1] for i in range(len(batch))])
+    images = torch.tensor([batch[i][0].tolist() for i in range(len(batch))])
+    labels = torch.LongTensor([batch[i][1].tolist() for i in range(len(batch))])
     paths  = [batch[i][2] for i in range(len(batch))]
-    task_pads = torch.LongTensor([batch[i][3] for i in range(len(batch))])
+    task_pads = torch.LongTensor([batch[i][3].tolist() for i in range(len(batch))])
     return images, labels, paths, task_pads
 
 train_and_val_data = get_label('dataset_cardiomegaly/train.csv', True)
@@ -105,5 +107,5 @@ split_idx  = (len(train_and_val_data) * SPLIT_RATIO[0])//SPLIT_RATIO[1]
 train_dataset = ImageDataset(train_and_val_data[:split_idx], True)
 val_dataset   = ImageDataset(train_and_val_data[split_idx:], False)
 
-test_dataset  = ImageDataset([(image_id_2_location[k], v) for k,v in get_label('dataset_cardiomegaly/test.csv').items()], False)
+test_dataset  = ImageDataset([(image_id_2_location[k], v) for k,v in get_label('dataset_cardiomegaly/test.csv').items()], False, True)
 

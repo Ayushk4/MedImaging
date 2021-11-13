@@ -4,7 +4,7 @@ import numpy as np
 import torchvision
 from torch import nn
 from tqdm import tqdm
-import loader
+import mt_loader as loader
 from datetime import datetime
 import timm
 import os
@@ -73,11 +73,12 @@ def create_model():
 
 def train_batch_loop(model, trainloader, optimizer, criterion):
     train_loss = 0.0
-    correct_preds = [0 for _ in range(14)]
-    num_totals = [0 for _ in range(14)]
+    correct_preds = torch.LongTensor([0 for _ in range(14)])
+    num_totals = torch.LongTensor([0 for _ in range(14)])
     for images,labels,_,task_pad in tqdm(trainloader): 
         images = images.to(DEVICE)
         labels = labels.to(DEVICE)
+        task_pad = task_pad.to(DEVICE)
         
         logits = model(images)
         loss = criterion(logits, labels, task_pad)
@@ -88,30 +89,31 @@ def train_batch_loop(model, trainloader, optimizer, criterion):
         
         train_loss += loss.item()
         xxx, yyy = accuracy(logits, labels, task_pad)
-        correct_preds += xxx
-        num_totals += yyy
+        correct_preds += torch.LongTensor(xxx)
+        num_totals += torch.LongTensor(yyy)
         
-    return train_loss / len(trainloader), [p/t for p, t in zip(correct_preds, num_totals)]
+    return train_loss / len(trainloader), [round(p/t,3) if t != 0 else 0 for p, t in zip(correct_preds.tolist(), num_totals.tolist())]
 
 def valid_batch_loop(model, validloader, optimizer, criterion):
     valid_loss = 0.0
-    correct_preds = [0 for _ in range(14)]
-    num_totals = [0 for _ in range(14)]
+    correct_preds = torch.LongTensor([0 for _ in range(14)])
+    num_totals = torch.LongTensor([0 for _ in range(14)])
     for images,labels,_,task_pad in tqdm(validloader):
         
         # move the data to CPU
         images = images.to(DEVICE) 
         labels = labels.to(DEVICE)
+        task_pad = task_pad.to(DEVICE)
         
         logits = model(images)
         loss = criterion(logits,labels,task_pad)
         
         valid_loss += loss.item()
         xxx, yyy = accuracy(logits, labels, task_pad)
-        correct_preds += xxx
-        num_totals += yyy
+        correct_preds += torch.LongTensor(xxx)
+        num_totals += torch.LongTensor(yyy)
 
-    return valid_loss / len(validloader), [p/t for p, t in zip(correct_preds, num_totals)]
+    return valid_loss / len(validloader), [round(p/t,3) if t != 0 else 0.0 for p, t in zip(correct_preds.tolist(), num_totals.tolist())]
 
 def fit(model, trainloader, validloader, optimizer, criterion, savefolder_):
     
@@ -131,8 +133,8 @@ def fit(model, trainloader, validloader, optimizer, criterion, savefolder_):
             valid_min_loss = avg_valid_loss
 
             
-        print("Epoch : {} Train Loss : {:.6f} Train Acc : {:.6f}".format(i+1, avg_train_loss, avg_train_acc))
-        print("Epoch : {} Valid Loss : {:.6f} Valid Acc : {:.6f}".format(i+1, avg_valid_loss, avg_valid_acc))
+        print("Epoch : {} Train Loss : {:.6f} Train Acc : {}".format(i+1, avg_train_loss, avg_train_acc))
+        print("Epoch : {} Valid Loss : {:.6f} Valid Acc : {}".format(i+1, avg_valid_loss, avg_valid_acc))
 
 
 if __name__ == "__main__":
