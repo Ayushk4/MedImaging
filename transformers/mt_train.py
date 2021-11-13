@@ -10,7 +10,7 @@ import timm
 import os
 from utils import accuracy
 
-MODEL_NAME = 'tf_efficientnet_b4_ns'
+MODEL_NAME = 'vit_base_patch16_224'#'tf_efficientnet_b4_ns'
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 EPOCHS = 5
 LEARNING_RATE = 0.0005
@@ -47,7 +47,7 @@ def create_model():
     model = timm.create_model(MODEL_NAME, pretrained=True)
     if PRETRAINED != True:
         return model.to(DEVICE)
-    prev_state_dict = torch.load('pretrained_models/' + MODEL_NAME + '.pt', map_location=torch.device('cpu'))
+    #prev_state_dict = torch.load('pretrained_models/' + MODEL_NAME + '.pt', map_location=torch.device('cpu'))
 
     if MODEL_NAME == 'tf_efficientnet_b4_ns':
         del prev_state_dict['classifier.0.weight']
@@ -59,10 +59,10 @@ def create_model():
         prev_state_dict['classifier.weight'] = torch.randn(model.classifier.weight.shape)
         prev_state_dict['classifier.bias'] = torch.randn(model.classifier.bias.shape)
     else:
-        raise 
-    model.load_state_dict(prev_state_dict)
-    model.classifier = nn.Sequential(
-                nn.Linear(in_features=1792, out_features=625),
+        pass
+    #model.load_state_dict(prev_state_dict)
+    model.head = nn.Sequential(
+                nn.Linear(in_features=768, out_features=625),
                 nn.LeakyReLU(), nn.Dropout(p=0.3),
                 nn.Linear(in_features=625, out_features=256),
                 nn.LeakyReLU(),
@@ -169,3 +169,5 @@ if __name__ == "__main__":
             strs.append(p.split('/')[-1] + "," + '|'.join(found_diseases))
 
     open(savefolder + "/sample_submission.csv", 'w+').write("\n".join(strs).strip())
+
+
