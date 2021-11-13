@@ -29,3 +29,8 @@ Finally we study the feasibility and deployability of our proposed model opening
 6. Execute `streamlit run app.py` to run our app from within the `app` folder.
 7. You may re-run these same experiments from within the Notebook, `multi-task`, `single-task` or `transformer` folder. If you want to experiment with models other than the used pre-trained `EfficientNet`, then change the ModelName accordingly in their respective trainer files.
 
+# Misc
+
+- License - MIT
+- Disclaimer: This app is a prototype and should NOT be used for real world diagnostics.
+
