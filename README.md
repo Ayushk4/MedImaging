@@ -11,6 +11,7 @@ Finally we study the feasibility and deployability of our proposed model opening
 # Dependencies and Using the Code
 
 - Python
+- Timm
 - Pytorch
 - TorchVision
 - Streamlit
